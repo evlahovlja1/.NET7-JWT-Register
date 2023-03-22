@@ -1,8 +1,10 @@
 ﻿namespace WebApi.Controllers;
 
 using AutoMapper;
+using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MimeKit;
 using WebApi.Authorization;
 using WebApi.Helpers;
 using WebApi.Models.Users;
@@ -39,8 +41,32 @@ public class UsersController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register(RegisterRequest model)
     {
+        // var email = new MimeMessage();
+        // email.From.Add(MailboxAddress.Parse("yasmin11@ethereal.email"));
+        // email.To.Add(MailboxAddress.Parse("evlahovlja1@etf.unsa.ba"));
+        // email.Subject = "Testirung bitte";
+        // email.Body = new TextPart(MimeKit.Text.TextFormat.Text) {Text = "Testirung bitte"};
+
+        // using var smtp = new SmtpClient();
+        // smtp.Connect("smtp.ethereal.email", 587, MailKit.Security.SecureSocketOptions.StartTls);
+        // smtp.Authenticate("yasmin11@ethereal.email", "VFGeaGQ2KEpkyBJThZ");
+        // smtp.Send(email);
+        // smtp.Disconnect(true);
+
+
         _userService.Register(model);
+
+        EmailSender emailSender = new EmailSender();
+        emailSender.SendEmailAsync("evlahovlja1@etf.unsa.ba", "http://localhost:4000/users/confirm").GetAwaiter().GetResult();
+        
+        
         return Ok(new { message = "Registration successful" });
+    }
+
+    [AllowAnonymous]
+    [HttpGet("confirm")]
+    public IActionResult Confirm() {
+        return Ok(new { message = "Confirmation successful" });
     }
 
     [HttpGet]
