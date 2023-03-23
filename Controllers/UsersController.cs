@@ -1,10 +1,8 @@
 ﻿namespace WebApi.Controllers;
 
 using AutoMapper;
-using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using MimeKit;
 using WebApi.Authorization;
 using WebApi.Helpers;
 using WebApi.Models.Users;
@@ -39,7 +37,7 @@ public class UsersController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public IActionResult Register(RegisterRequest model)
+    public async Task<IActionResult> Register(RegisterRequest model)
     {
         // var email = new MimeMessage();
         // email.From.Add(MailboxAddress.Parse("yasmin11@ethereal.email"));
@@ -57,7 +55,7 @@ public class UsersController : ControllerBase
         _userService.Register(model);
 
         EmailSender emailSender = new EmailSender();
-        emailSender.SendEmailAsync("evlahovlja1@etf.unsa.ba", "http://localhost:4000/users/confirm").GetAwaiter().GetResult();
+        await emailSender.SendEmailAsync("evlahovlja1@etf.unsa.ba", "http://localhost:4000/users/confirm");
         
         
         return Ok(new { message = "Registration successful" });
