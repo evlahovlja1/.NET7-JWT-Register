@@ -3,7 +3,7 @@ namespace WebApi.Helpers;
 using System.Net.Mail;
 public class EmailSender
     {
-        public async Task<bool> SendEmailAsync(string userEmail, string confirmationLink)
+        public async Task<bool> SendEmailAsync(string userEmail, string activationCode)
         {
             MailMessage mailMessage = new MailMessage();
             mailMessage.From = new MailAddress("lifeplannerdemo@gmail.com");
@@ -11,7 +11,7 @@ public class EmailSender
 
             mailMessage.Subject = "Confirm your email";
             mailMessage.IsBodyHtml = true;
-            mailMessage.Body = confirmationLink;
+            mailMessage.Body = activationCode;
 
             SmtpClient client = new SmtpClient();
             client.UseDefaultCredentials = false;
