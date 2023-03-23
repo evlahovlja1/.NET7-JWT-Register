@@ -28,7 +28,7 @@ public class EmailSender
                 await client.SendMailAsync(mailMessage);
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
                 // log exception
             }
