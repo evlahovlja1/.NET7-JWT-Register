@@ -4,39 +4,36 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using WebApi.Authorization;
+using WebApi.Entities;
 using WebApi.Helpers;
+using WebApi.Models.RegisterCodes;
 using WebApi.Models.Users;
 using WebApi.Services;
 
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class UsersController : ControllerBase
+public class RegisterController : ControllerBase
 {
     private IUserService _userService;
+    private IRegisterCodeService _registerCodeService;
     private IMapper _mapper;
     private readonly AppSettings _appSettings;
 
-    public UsersController(
+    public RegisterController(
         IUserService userService,
+        IRegisterCodeService registerCodeService, 
         IMapper mapper,
         IOptions<AppSettings> appSettings)
     {
         _userService = userService;
+        _registerCodeService = registerCodeService;
         _mapper = mapper;
         _appSettings = appSettings.Value;
     }
 
-    // [AllowAnonymous]
-    // [HttpPost("authenticate")]
-    // public IActionResult Authenticate(AuthenticateRequest model)
-    // {
-    //     var response = _userService.Authenticate(model);
-    //     return Ok(response);
-    // }
-
     [AllowAnonymous]
-    [HttpPost("register")]
+    [HttpPost]
     public async Task<IActionResult> Register(RegisterRequest model)
     {
         // var email = new MimeMessage();
@@ -52,46 +49,36 @@ public class UsersController : ControllerBase
         // smtp.Disconnect(true);
 
 
-        _userService.Register(model);
+        var user =  _userService.Register(model);
+
+        Random random = new Random();
+        String code = random.Next(1000,9999).ToString();
+
+        RegisterCode registerCode = new RegisterCode {
+            Id = new Guid(),
+            Value = code,
+            Activated = false,
+            User = user
+        };
+
+        await _registerCodeService.SaveCodeAsync(registerCode);
 
         EmailSender emailSender = new EmailSender();
-        await emailSender.SendEmailAsync("evlahovlja1@etf.unsa.ba", "http://localhost:4000/users/confirm");
+        await emailSender.SendEmailAsync(user.Email, code);
         
         
         return Ok(new { message = "Registration successful" });
     }
 
     [AllowAnonymous]
-    [HttpGet("confirm")]
-    public IActionResult Confirm() {
-        return Ok(new { message = "Confirmation successful" });
+    [HttpPost("confirm")]
+    public async Task<IActionResult> Confirm(ConfirmationRequest confirmationRequest) {
+        bool activationResult = await _registerCodeService.ActivateCodeAsync(confirmationRequest.Code, confirmationRequest.Username);
+        if (activationResult) {
+            return Ok(new { message = "Activation successful" });
+        }
+        else {
+            return BadRequest(new { message = "Username or code incorrect!" });
+        }
     }
-
-    // [HttpGet]
-    // public IActionResult GetAll()
-    // {
-    //     var users = _userService.GetAll();
-    //     return Ok(users);
-    // }
-
-    // [HttpGet("{id}")]
-    // public IActionResult GetById(int id)
-    // {
-    //     var user = _userService.GetById(id);
-    //     return Ok(user);
-    // }
-
-    // [HttpPut("{id}")]
-    // public IActionResult Update(int id, UpdateRequest model)
-    // {
-    //     _userService.Update(id, model);
-    //     return Ok(new { message = "User updated successfully" });
-    // }
-
-    // [HttpDelete("{id}")]
-    // public IActionResult Delete(int id)
-    // {
-    //     _userService.Delete(id);
-    //     return Ok(new { message = "User deleted successfully" });
-    // }
 }

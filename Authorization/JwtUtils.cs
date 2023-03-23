@@ -10,7 +10,7 @@ using WebApi.Helpers;
 
 public interface IJwtUtils
 {
-    public string GenerateToken(User user);
+    public string GenerateToken(UserRegister user);
     public int? ValidateToken(string token);
 }
 
@@ -23,7 +23,7 @@ public class JwtUtils : IJwtUtils
         _appSettings = appSettings.Value;
     }
 
-    public string GenerateToken(User user)
+    public string GenerateToken(UserRegister user)
     {
         // generate token that is valid for 7 days
         var tokenHandler = new JwtSecurityTokenHandler();

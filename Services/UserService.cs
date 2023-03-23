@@ -2,6 +2,7 @@ namespace WebApi.Services;
 
 using AutoMapper;
 using BCrypt.Net;
+using Microsoft.EntityFrameworkCore;
 using WebApi.Authorization;
 using WebApi.Entities;
 using WebApi.Helpers;
@@ -9,8 +10,8 @@ using WebApi.Models.Users;
 
 public interface IUserService
 {
-    User GetById(int id);
-    void Register(RegisterRequest model);
+    UserRegister GetById(int id);
+    UserRegister Register(RegisterRequest model);
 }
 
 public class UserService : IUserService
@@ -29,21 +30,21 @@ public class UserService : IUserService
         _mapper = mapper;
     }
 
-    public User GetById(int id)
+    public UserRegister GetById(int id)
     {
         var user = _context.Users.Find(id);
         if (user == null) throw new KeyNotFoundException("User not found");
         return user;
     }
 
-    public void Register(RegisterRequest model)
+    public UserRegister Register(RegisterRequest model)
     {
         // validate
         if (_context.Users.Any(x => x.Username == model.Username))
             throw new AppException("Username '" + model.Username + "' is already taken");
 
         // map model to new user object
-        var user = _mapper.Map<User>(model);
+        var user = _mapper.Map<UserRegister>(model);
 
         // hash password
         user.PasswordHash = BCrypt.HashPassword(model.Password);
@@ -51,5 +52,7 @@ public class UserService : IUserService
         // save user
         _context.Users.Add(user);
         _context.SaveChanges();
+
+        return user;
     }
 }

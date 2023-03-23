@@ -9,9 +9,9 @@ public class AutoMapperProfile : Profile
     public AutoMapperProfile()
     {
         // User -> AuthenticateResponse
-        CreateMap<User, AuthenticateResponse>();
+        CreateMap<UserRegister, AuthenticateResponse>();
 
         // RegisterRequest -> User
-        CreateMap<RegisterRequest, User>();
+        CreateMap<RegisterRequest, UserRegister>();
     }
 }

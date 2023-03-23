@@ -18,5 +18,6 @@ public class DataContext : DbContext
         options.UseSqlServer(Configuration.GetConnectionString("WebApiDatabase"));
     }
 
-    public DbSet<User> Users { get; set; }
+    public DbSet<UserRegister> Users { get; set; }
+     public DbSet<RegisterCode> RegistrationCodes { get; set; }
 }
