@@ -10,7 +10,7 @@ using WebApi.Models.RegisterCodes;
 using WebApi.Models.Users;
 using WebApi.Services;
 
-[Authorize]
+[CustomAuthorize]
 [ApiController]
 [Route("[controller]")]
 public class RegisterController : ControllerBase
@@ -32,7 +32,7 @@ public class RegisterController : ControllerBase
         _appSettings = appSettings.Value;
     }
 
-    [AllowAnonymous]
+    [CustomAllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> Register(RegisterRequest model)
     {
@@ -70,7 +70,7 @@ public class RegisterController : ControllerBase
         return Ok(new { message = "Registration successful" });
     }
 
-    [AllowAnonymous]
+    [CustomAllowAnonymous]
     [HttpPost("confirm")]
     public async Task<IActionResult> Confirm(ConfirmationRequest confirmationRequest) {
         bool activationResult = await _registerCodeService.ActivateCodeAsync(confirmationRequest.Code, confirmationRequest.Username);
